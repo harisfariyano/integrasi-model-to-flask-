@@ -1,0 +1,7 @@
+__pycache__/
+model/
+static/*
+!static/video/c2.mp4
+ya.py/
+bo.py/
+

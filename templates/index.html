@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Dropoff Zone</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #videoType {
+            width: 200px; /* Sesuaikan lebar dropdown dengan keinginan Anda */
+        }
+
+        #videoSourceInput {
+            width: 300px; /* Sesuaikan lebar input IP Camera URL dengan keinginan Anda */
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1 class="mt-5">AI Dropoff Zone</h1>
+    <form id="videoForm" method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="videoSource">Select Video Source</label>
+            <select class="form-control" id="videoType">
+                <option value="" disabled selected>klik pilih salah satu dari sumber video</option>
+                <option value="ip">IP Camera URL</option>
+                <option value="file">Upload Video File</option>
+            </select>
+        </div>
+        <div class="form-group" id="ipInput" style="display: none;">
+            <label for="videoSource">IP Camera URL</label>
+            <input type="text" class="form-control" id="videoSourceInput" name="videoSource" placeholder="Enter IP camera URL">
+        </div>
+        <div class="form-group" id="fileInput" style="display: none;">
+            <label for="videoFile">Upload Video File</label>
+            <input type="file" class="form-control-file" id="videoFile" name="videoFile">
+        </div>
+        <button type="submit" class="btn btn-primary">Start Video</button>
+        <button type="reset" class="btn btn-secondary">Reset</button>
+    </form>
+    <div class="mt-5">
+        <h3>Video Stream</h3>
+        <img id="videoStream" src="" class="img-fluid" alt="Video Stream">
+    </div>
+</div>
+<script>
+    document.getElementById('videoType').addEventListener('change', function() {
+        let videoType = this.value;
+        document.getElementById('ipInput').style.display = (videoType === 'ip') ? 'block' : 'none';
+        document.getElementById('fileInput').style.display = (videoType === 'file') ? 'block' : 'none';
+    });
+
+    document.getElementById('videoForm').onsubmit = function(e) {
+        e.preventDefault();
+        let formData = new FormData(this);
+
+        // Stop the current video stream
+        let videoStream = document.getElementById('videoStream');
+        videoStream.src = '';
+
+        fetch('/upload_video', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json())
+          .then(data => {
+              // Start the new video stream
+              setTimeout(() => {
+                  videoStream.src = '/video_feed?video_source=' + encodeURIComponent(data.video_source);
+              }, 500); // Adding a small delay to ensure the reset takes effect
+          });
+    };
+</script>
+</body>
+</html>
